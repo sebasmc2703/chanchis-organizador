@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapyPOS Pro</title>
+<style>
+:root{
+  --bg:#ecfdf5;--card:#ffffff;--text:#0f172a;--muted:#64748b;
+  --primary:#0f766e;--primary2:#14b8a6;--dark:#042f2e;
+  --red:#dc2626;--yellow:#f59e0b;--green:#16a34a;--blue:#2563eb;
+  --shadow:0 18px 45px rgba(15,23,42,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,Arial,sans-serif}
+body{min-height:100vh;background:linear-gradient(135deg,#ecfdf5,#e0f2fe);color:var(--text)}
+.hidden{display:none!important}
+button{border:0;border-radius:15px;padding:13px 16px;background:var(--primary);color:#fff;font-weight:900;cursor:pointer;transition:.2s}
+button:hover{transform:translateY(-2px);filter:brightness(.97)}
+input,select{width:100%;padding:13px;border-radius:14px;border:1px solid #cbd5e1;font-size:15px;background:#fff;color:#0f172a;outline:none}
+label{display:block;margin:12px 0 6px;font-weight:800}
+.login-screen{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#042f2e,#0f766e,#2563eb)}
+.login-card{width:min(460px,100%);background:#fff;padding:34px;border-radius:32px;box-shadow:0 30px 80px rgba(0,0,0,.32)}
+.logo{text-align:center;font-size:64px}.login-card h1{text-align:center;font-size:42px}.login-card p{text-align:center;color:var(--muted);margin:8px 0 22px}
+.login-card button{width:100%;margin-top:18px}.hint{display:block;text-align:center;color:var(--muted);margin-top:14px;line-height:1.6}
+.app{display:grid;grid-template-columns:285px 1fr;min-height:100vh}
+.sidebar{background:#052e2b;color:#fff;padding:22px;display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;align-items:center;gap:13px;margin-bottom:18px}.brand span{font-size:46px}.brand small{color:#99f6e4}
+.nav,.logout{width:100%;text-align:left;background:transparent;color:#d1fae5}
+.nav.active,.nav:hover{background:rgba(255,255,255,.14)}
+.logout{margin-top:auto;background:var(--red);text-align:center}
+.content{padding:24px;overflow:auto}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.top p{color:var(--muted)}
+.page{display:none}.page.active{display:block}
+.hero{background:linear-gradient(135deg,#0f766e,#2563eb);color:white;border-radius:30px;padding:24px;box-shadow:var(--shadow);margin-bottom:18px}
+.hero h1{font-size:34px}.hero p{opacity:.9}
+.card{background:var(--card);border-radius:26px;padding:21px;box-shadow:var(--shadow);margin-bottom:18px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}
+.stat span{display:block;color:var(--muted);font-weight:700;margin-bottom:8px}.stat b{font-size:27px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:13px;border-bottom:1px solid #e2e8f0}
+.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#dcfce7;color:#166534;font-size:12px;font-weight:900}.badge.off{background:#fee2e2;color:#991b1b}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.actions button{padding:9px 10px}.edit{background:var(--yellow)}.danger{background:var(--red)}.blue{background:var(--blue)}.secondary{background:var(--blue);width:100%;margin-top:10px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}.product{background:#fff;border-radius:22px;padding:18px;box-shadow:var(--shadow);border-left:7px solid var(--primary)}
+.price{font-size:27px;font-weight:900;color:var(--primary);margin:10px 0}.line{display:flex;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #e2e8f0}
+.total{display:flex;justify-content:space-between;align-items:center;background:rgba(20,184,166,.13);padding:16px;border-radius:18px;margin-top:14px}.total b{font-size:27px;color:var(--primary)}
+.empty{color:var(--muted);padding:12px 0}
+@media(max-width:900px){.app{grid-template-columns:1fr}.stats,.grid{grid-template-columns:1fr}.content{padding:14px}.sidebar{position:static}.hero h1{font-size:28px}}
+</style>
+</head>
+<body>
+<section id="login" class="login-screen">
+  <div class="login-card">
+    <div class="logo">🦫</div>
+    <h1>CapyPOS Pro</h1>
+    <p>Sistema POS multi-restaurante</p>
+    <label>Empresa</label><input id="loginCompany" value="CAPYPOS">
+    <label>Usuario</label><input id="loginUser" value="superadmin">
+    <label>Contraseña</label><input id="loginPass" type="password" value="admin2026">
+    <button onclick="login()">Iniciar sesión</button>
+    <small class="hint">Admin: <b>CAPYPOS</b> · <b>superadmin</b> · <b>admin2026</b><br>Demo restaurante: <b>RESTAURANTE01</b> · <b>admin</b> · <b>123456</b></small>
+  </div>
+</section>
+
+<main id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand"><span>🦫</span><div><h2>CapyPOS</h2><small id="sessionName">Sistema</small></div></div>
+    <button class="nav active admin-only" data-page="admin">👑 Panel Admin</button>
+    <button class="nav" data-page="dashboard">🏠 Inicio</button>
+    <button class="nav" data-page="products">🍔 Productos</button>
+    <button class="nav" data-page="sales">💰 Ventas</button>
+    <button class="nav" data-page="reports">📊 Reportes</button>
+    <button class="logout" onclick="logout()">Cerrar sesión</button>
+  </aside>
+
+  <section class="content">
+    <div class="top"><div><h1 id="title">Panel</h1><p id="subtitle">Administra restaurantes, productos y ventas</p></div></div>
+
+    <section id="admin" class="page active">
+      <div class="hero"><h1>👑 Súper Admin</h1><p>Crea restaurantes y cambia usuarios/contraseñas sin tocar código.</p></div>
+      <div class="stats">
+        <div class="card stat"><span>Restaurantes</span><b id="stRestaurants">0</b></div>
+        <div class="card stat"><span>Activos</span><b id="stActive">0</b></div>
+        <div class="card stat"><span>Ventas totales</span><b id="stSales">S/ 0.00</b></div>
+        <div class="card stat"><span>Usuarios</span><b id="stUsers">0</b></div>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <h2>Crear / editar restaurante</h2>
+          <input id="rid" type="hidden">
+          <label>Nombre</label><input id="rname" placeholder="Pollería Don Pepe">
+          <label>Código empresa</label><input id="rcode" placeholder="DONPEPE">
+          <label>Usuario</label><input id="ruser" placeholder="admin">
+          <label>Contraseña</label><input id="rpass" placeholder="123456">
+          <label>Estado</label><select id="ractive"><option value="true">Activo</option><option value="false">Desactivado</option></select>
+          <button onclick="saveRestaurant()">Guardar restaurante</button>
+          <button class="secondary" onclick="clearForm()">Limpiar formulario</button>
+        </article>
+        <article class="card">
+          <h2>Restaurantes registrados</h2>
+          <div class="table-wrap"><table><thead><tr><th>Nombre</th><th>Empresa</th><th>Usuario</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="restaurants"></tbody></table></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="dashboard" class="page">
+      <div class="hero"><h1 id="heroRestaurant">Restaurante</h1><p>Resumen general del negocio.</p></div>
+      <div class="stats">
+        <div class="card stat"><span>Ventas</span><b id="dashSales">S/ 0.00</b></div>
+        <div class="card stat"><span>Pedidos</span><b id="dashOrders">0</b></div>
+        <div class="card stat"><span>Productos</span><b id="dashProducts">0</b></div>
+        <div class="card stat"><span>Ticket promedio</span><b id="dashAvg">S/ 0.00</b></div>
+      </div>
+      <div class="grid">
+        <div class="card"><h2>Últimas ventas</h2><div id="lastSales"></div></div>
+        <div class="card"><h2>Datos de acceso</h2><div id="accessInfo"></div></div>
+      </div>
+    </section>
+
+    <section id="products" class="page">
+      <div class="section-head"><h2>Productos</h2><button onclick="addProduct()">+ Producto</button></div>
+      <div id="productsList" class="cards"></div>
+    </section>
+
+    <section id="sales" class="page">
+      <div class="grid">
+        <article class="card">
+          <h2>Nueva venta</h2>
+          <label>Producto</label><select id="saleProduct"></select>
+          <label>Cantidad</label><input id="saleQty" type="number" value="1" min="1">
+          <button onclick="addToCart()">Agregar</button>
+          <div id="cart"></div>
+          <label>Método de pago</label><select id="payment"><option>Efectivo</option><option>Yape</option><option>Plin</option><option>Tarjeta</option></select>
+          <button onclick="charge()">Cobrar venta</button>
+        </article>
+        <article class="card"><h2>Ventas registradas</h2><div id="salesList"></div></article>
+      </div>
+    </section>
+
+    <section id="reports" class="page">
+      <article class="card"><h2>Reportes</h2><div id="reportsBox"></div></article>
+    </section>
+  </section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const money=n=>"S/ "+Number(n||0).toLocaleString("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2});
+const starter={restaurants:[{id:1,name:"Restaurante Demo",code:"RESTAURANTE01",user:"admin",pass:"123456",active:true,products:[{id:1,name:"Pollo broaster",price:18},{id:2,name:"Hamburguesa",price:12},{id:3,name:"Chaufa",price:15},{id:4,name:"Gaseosa",price:5}],sales:[]}]};
+let db=JSON.parse(localStorage.getItem("capypos_bien_v1"))||starter;
+let session=JSON.parse(localStorage.getItem("capypos_bien_session"))||null;
+let cart=[];
+function save(){localStorage.setItem("capypos_bien_v1",JSON.stringify(db));render()}
+function login(){
+  const c=$("loginCompany").value.trim().toUpperCase(),u=$("loginUser").value.trim(),p=$("loginPass").value.trim();
+  if(c==="CAPYPOS"&&u==="superadmin"&&p==="admin2026"){session={type:"admin",name:"Súper Admin"};localStorage.setItem("capypos_bien_session",JSON.stringify(session));show();return}
+  const r=db.restaurants.find(x=>x.code.toUpperCase()===c&&x.user===u&&x.pass===p&&x.active);
+  if(!r)return alert("Empresa, usuario o contraseña incorrectos.");
+  session={type:"restaurant",restaurantId:r.id,name:r.name};localStorage.setItem("capypos_bien_session",JSON.stringify(session));show()
+}
+function logout(){session=null;localStorage.removeItem("capypos_bien_session");$("login").classList.remove("hidden");$("app").classList.add("hidden")}
+function show(){
+  $("login").classList.add("hidden");$("app").classList.remove("hidden");$("sessionName").textContent=session.name;
+  document.querySelectorAll(".admin-only").forEach(e=>e.style.display=session.type==="admin"?"block":"none");
+  openPage(session.type==="admin"?"admin":"dashboard");render()
+}
+function openPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.querySelectorAll(".nav").forEach(n=>n.classList.remove("active"));
+  $(id).classList.add("active");
+  const b=document.querySelector(`[data-page="${id}"]`); if(b){b.classList.add("active");$("title").textContent=b.textContent.replace(/[👑🏠🍔💰📊]/g,"").trim()}
+}
+document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>openPage(b.dataset.page));
+function current(){return session?.type==="restaurant"?db.restaurants.find(r=>r.id===session.restaurantId):db.restaurants[0]}
+function clearForm(){["rid","rname","rcode","ruser","rpass"].forEach(id=>$(id).value="");$("ractive").value="true"}
+function saveRestaurant(){
+  const id=$("rid").value, data={name:$("rname").value.trim(),code:$("rcode").value.trim().toUpperCase(),user:$("ruser").value.trim(),pass:$("rpass").value.trim(),active:$("ractive").value==="true"};
+  if(!data.name||!data.code||!data.user||!data.pass)return alert("Completa todos los campos.");
+  if(id){Object.assign(db.restaurants.find(r=>r.id==id),data)}
+  else{if(db.restaurants.some(r=>r.code===data.code))return alert("Ese código ya existe.");db.restaurants.push({id:Date.now(),...data,products:[{id:Date.now()+1,name:"Menú del día",price:12},{id:Date.now()+2,name:"Gaseosa",price:5}],sales:[]})}
+  clearForm();save()
+}
+function editRestaurant(id){const r=db.restaurants.find(x=>x.id===id);$("rid").value=r.id;$("rname").value=r.name;$("rcode").value=r.code;$("ruser").value=r.user;$("rpass").value=r.pass;$("ractive").value=String(r.active)}
+function toggleRestaurant(id){const r=db.restaurants.find(x=>x.id===id);r.active=!r.active;save()}
+function deleteRestaurant(id){if(confirm("¿Eliminar restaurante?")){db.restaurants=db.restaurants.filter(r=>r.id!==id);save()}}
+function addProduct(){const r=current(),name=prompt("Producto:"),price=+prompt("Precio:");if(name&&price>0){r.products.push({id:Date.now(),name,price});save()}}
+function editProduct(id){const r=current(),p=r.products.find(x=>x.id===id),name=prompt("Nombre:",p.name),price=+prompt("Precio:",p.price);if(name&&price>0){p.name=name;p.price=price;save()}}
+function deleteProduct(id){const r=current();if(confirm("¿Eliminar producto?")){r.products=r.products.filter(p=>p.id!==id);save()}}
+function addToCart(){const r=current(),pid=+$("saleProduct").value,qty=+$("saleQty").value,p=r.products.find(x=>x.id===pid);if(p&&qty>0){cart.push({name:p.name,price:p.price,qty});renderCart()}}
+function charge(){const r=current();if(!cart.length)return alert("Agrega productos.");const total=cart.reduce((s,i)=>s+i.price*i.qty,0);r.sales.unshift({id:Date.now(),date:new Date().toLocaleString("es-PE"),method:$("payment").value,items:[...cart],total});cart=[];save();alert("Venta registrada")}
+function render(){
+  const totalAll=db.restaurants.reduce((s,r)=>s+r.sales.reduce((a,b)=>a+b.total,0),0);
+  $("stRestaurants").textContent=db.restaurants.length;$("stActive").textContent=db.restaurants.filter(r=>r.active).length;$("stSales").textContent=money(totalAll);$("stUsers").textContent=db.restaurants.length+1;
+  $("restaurants").innerHTML=db.restaurants.map(r=>`<tr><td>${r.name}</td><td>${r.code}</td><td>${r.user}</td><td><span class="badge ${r.active?'':'off'}">${r.active?'Activo':'Off'}</span></td><td><div class="actions"><button class="edit" onclick="editRestaurant(${r.id})">Editar</button><button class="blue" onclick="toggleRestaurant(${r.id})">${r.active?'Desactivar':'Activar'}</button><button class="danger" onclick="deleteRestaurant(${r.id})">Eliminar</button></div></td></tr>`).join("");
+  const r=current(); if(!r)return;
+  const total=r.sales.reduce((s,v)=>s+v.total,0), avg=r.sales.length?total/r.sales.length:0;
+  $("heroRestaurant").textContent=r.name;$("dashSales").textContent=money(total);$("dashOrders").textContent=r.sales.length;$("dashProducts").textContent=r.products.length;$("dashAvg").textContent=money(avg);
+  $("lastSales").innerHTML=r.sales.slice(0,5).map(s=>`<div class="line"><span>${s.date} · ${s.method}</span><b>${money(s.total)}</b></div>`).join("")||"<p class='empty'>Aún no hay ventas.</p>";
+  $("accessInfo").innerHTML=`<div class="line"><span>Empresa</span><b>${r.code}</b></div><div class="line"><span>Usuario</span><b>${r.user}</b></div><div class="line"><span>Estado</span><b>${r.active?'Activo':'Desactivado'}</b></div>`;
+  $("productsList").innerHTML=r.products.map(p=>`<div class="product"><h3>${p.name}</h3><div class="price">${money(p.price)}</div><div class="actions"><button class="edit" onclick="editProduct(${p.id})">Editar</button><button class="danger" onclick="deleteProduct(${p.id})">Eliminar</button></div></div>`).join("");
+  $("saleProduct").innerHTML=r.products.map(p=>`<option value="${p.id}">${p.name} - ${money(p.price)}</option>`).join("");
+  $("salesList").innerHTML=r.sales.map(s=>`<div class="card"><b>${s.date} · ${s.method}</b>${s.items.map(i=>`<div class="line"><span>${i.qty} x ${i.name}</span><b>${money(i.price*i.qty)}</b></div>`).join("")}<div class="total"><span>Total</span><b>${money(s.total)}</b></div></div>`).join("")||"<p class='empty'>No hay ventas registradas.</p>";
+  $("reportsBox").innerHTML=`<div class="line"><span>Restaurante</span><b>${r.name}</b></div><div class="line"><span>Total vendido</span><b>${money(total)}</b></div><div class="line"><span>Ventas cobradas</span><b>${r.sales.length}</b></div><div class="line"><span>Ticket promedio</span><b>${money(avg)}</b></div>`;
+  renderCart();
+}
+function renderCart(){const total=cart.reduce((s,i)=>s+i.price*i.qty,0);$("cart").innerHTML=cart.map(i=>`<div class="line"><span>${i.qty} x ${i.name}</span><b>${money(i.price*i.qty)}</b></div>`).join("")+(cart.length?`<div class="total"><span>Total</span><b>${money(total)}</b></div>`:"")}
+if(session)show();
+</script>
+</body>
+</html>
