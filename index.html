@@ -43,6 +43,13 @@ button:hover{transform:translateY(-2px);filter:brightness(.95)}
 .actions{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 @media(max-width:760px){.app{padding:14px}h1{font-size:28px}.hero h2{font-size:36px}.grid,.mini-grid,.actions{grid-template-columns:1fr}.list-head{flex-direction:column;align-items:stretch}.list-head input{max-width:none}.expense{flex-direction:column;align-items:stretch}}
 </style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Chanchis">
+<link rel="apple-touch-icon" href="icon-192.png">
+
 </head>
 <body>
 <main class="app">
@@ -75,5 +82,14 @@ function renderExpenses(){const q=($("searchExpense").value||"").toLowerCase();c
 function render(){document.body.classList.toggle("dark",state.dark);$("themeBtn").textContent=state.dark?"☀️":"🌙";$("incomeFortnight").value=state.incomeFortnight;$("incomeEndMonth").value=state.incomeEndMonth;$("savingPercent").value=state.savingPercent;$("goalName").value=state.goalName;$("goalAmount").value=state.goalAmount||"";const t=totals();$("incomeTotal").textContent=money(t.income);$("savingTotal").textContent=money(t.saving);$("spentTotal").textContent=money(t.spent);$("available").textContent=money(t.available);const usable=Math.max(t.income-t.saving,1);const used=Math.min(t.spent/usable*100,100);$("budgetBar").style.width=used+"%";$("budgetText").textContent=`${used.toFixed(0)}% del dinero disponible usado`;const gp=state.goalAmount>0?Math.min(t.saving/state.goalAmount*100,100):0;$("goalTitle").textContent=state.goalName?`${state.goalName} · ${money(state.goalAmount)}`:"Sin meta todavía";$("goalProgressText").textContent=gp.toFixed(0)+"%";$("goalBar").style.width=gp+"%";renderChart();renderExpenses()}
 $("saveConfig").onclick=saveConfig;$("addExpense").onclick=addExpense;$("saveGoal").onclick=saveGoal;$("themeBtn").onclick=()=>{state.dark=!state.dark;save()};$("resetData").onclick=resetData;$("exportData").onclick=exportData;$("searchExpense").oninput=renderExpenses;render();
 </script>
+
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}
+</script>
+
 </body>
 </html>
