@@ -1,0 +1,79 @@
+\
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🐷 Chanchis Organizador</title>
+<style>
+:root{
+  --bg:#eef3fb;--card:#ffffff;--text:#102033;--muted:#6b7280;
+  --primary:#2563eb;--green:#16a34a;--red:#dc2626;--orange:#f59e0b;
+  --shadow:0 18px 40px rgba(15,23,42,.12)
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,Arial,sans-serif}
+body{background:var(--bg);color:var(--text);min-height:100vh}
+body.dark{--bg:#0f172a;--card:#172033;--text:#f8fafc;--muted:#cbd5e1;--shadow:0 18px 40px rgba(0,0,0,.35)}
+.app{width:min(1100px,100%);margin:auto;padding:22px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.hello{color:var(--muted)}
+h1{font-size:34px}
+.card{background:var(--card);border-radius:24px;padding:22px;box-shadow:var(--shadow);margin-bottom:20px}
+.hero{color:white;background:linear-gradient(135deg,#0f766e,#2563eb,#7c3aed)}
+.hero h2{font-size:46px;margin:8px 0 20px}
+.mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mini-grid div{background:rgba(255,255,255,.14);padding:14px;border-radius:18px}
+.mini-grid span{display:block;font-size:13px;opacity:.85}.mini-grid b{font-size:18px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+h3{margin-bottom:15px}label{font-weight:700;font-size:14px;margin-top:10px;display:block}
+input,select{width:100%;margin-top:6px;padding:13px;border-radius:14px;border:1px solid #d1d5db;outline:none;font-size:15px;background:transparent;color:var(--text)}
+button{width:100%;margin-top:16px;border:0;border-radius:15px;padding:14px;background:var(--primary);color:white;font-weight:800;cursor:pointer;transition:.2s}
+button:hover{transform:translateY(-2px);filter:brightness(.95)}
+.icon-btn{width:auto;padding:12px 14px;margin:0}
+.progress{height:12px;background:rgba(255,255,255,.25);border-radius:999px;overflow:hidden;margin:14px 0}
+.card .progress{background:#e5e7eb}.progress div{height:100%;width:0%;background:#22c55e;border-radius:999px;transition:.4s}
+.chart{display:flex;flex-direction:column;gap:12px}.chart-row{display:grid;grid-template-columns:130px 1fr 80px;gap:10px;align-items:center}
+.chart-track{height:12px;background:#e5e7eb;border-radius:99px;overflow:hidden}.chart-fill{height:100%;background:var(--primary);border-radius:99px}
+.goal-box{margin-top:18px}.goal-box b{display:block;margin-bottom:6px}
+.list-head{display:flex;gap:16px;align-items:center;justify-content:space-between}.list-head input{max-width:300px;margin:0}
+.expenses{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+.expense{display:flex;justify-content:space-between;gap:14px;align-items:center;padding:15px;border-radius:18px;background:rgba(37,99,235,.08);border-left:6px solid var(--primary)}
+.expense small{color:var(--muted)}.amount{font-weight:900;color:var(--red);font-size:18px}.row-actions{display:flex;gap:8px}.row-actions button{margin:0;padding:9px 10px;border-radius:12px}
+.danger,.delete{background:var(--red)}.edit{background:var(--orange)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+@media(max-width:760px){.app{padding:14px}h1{font-size:28px}.hero h2{font-size:36px}.grid,.mini-grid,.actions{grid-template-columns:1fr}.list-head{flex-direction:column;align-items:stretch}.list-head input{max-width:none}.expense{flex-direction:column;align-items:stretch}}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="top"><div><p class="hello">🐷 Cada sol cuenta</p><h1>🐷 Chanchis Organizador</h1></div><button id="themeBtn" class="icon-btn">🌙</button></header>
+<section class="hero card"><p>Disponible total</p><h2 id="available">S/ 0.00</h2><div class="mini-grid"><div><span>Ingresos</span><b id="incomeTotal">S/ 0.00</b></div><div><span>Ahorro</span><b id="savingTotal">S/ 0.00</b></div><div><span>Gastado</span><b id="spentTotal">S/ 0.00</b></div></div><div class="progress"><div id="budgetBar"></div></div><small id="budgetText">0% usado</small></section>
+<section class="grid">
+<article class="card"><h3>💵 Configurar ingresos</h3><label>Quincena</label><input id="incomeFortnight" type="number" placeholder="Ej: 600"><label>Fin de mes</label><input id="incomeEndMonth" type="number" placeholder="Ej: 700"><label>Ahorro automático</label><select id="savingPercent"><option value="2">2%</option><option value="3" selected>3%</option><option value="5">5%</option><option value="10">10%</option></select><button id="saveConfig">Guardar configuración</button></article>
+<article class="card"><h3>➕ Nuevo gasto</h3><label>Nombre</label><input id="expenseName" placeholder="Ej: comida, pasaje, internet"><label>Monto</label><input id="expenseAmount" type="number" placeholder="Ej: 25"><label>Categoría</label><select id="expenseCategory"><option>🍔 Comida</option><option>🚗 Transporte</option><option>🏠 Casa</option><option>💡 Servicios</option><option>📱 Celular</option><option>🎮 Ocio</option><option>📚 Estudios</option><option>📦 Otros</option></select><label>Periodo</label><select id="expensePeriod"><option>Quincena</option><option>Fin de mes</option></select><button id="addExpense">Agregar gasto</button></article>
+</section>
+<section class="grid"><article class="card"><h3>📊 Gastos por categoría</h3><div id="categoryChart" class="chart"></div></article><article class="card"><h3>🎯 Meta de ahorro</h3><label>Nombre de meta</label><input id="goalName" placeholder="Ej: iPhone, laptop, moto"><label>Monto meta</label><input id="goalAmount" type="number" placeholder="Ej: 3000"><button id="saveGoal">Guardar meta</button><div class="goal-box"><b id="goalTitle">Sin meta todavía</b><span id="goalProgressText">0%</span><div class="progress"><div id="goalBar"></div></div></div></article></section>
+<section class="card"><div class="list-head"><h3>📋 Mis gastos</h3><input id="searchExpense" placeholder="Buscar gasto..."></div><div id="expenseList" class="expenses"></div></section>
+<section class="actions"><button id="exportData">Exportar respaldo</button><button id="resetData" class="danger">Borrar todo</button></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const fresh={incomeFortnight:0,incomeEndMonth:0,savingPercent:3,goalName:"",goalAmount:0,dark:false,expenses:[]};
+let state=JSON.parse(localStorage.getItem("moneyTrackerProSingle"))||fresh;
+function money(n){return "S/ "+Number(n||0).toLocaleString("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function save(){localStorage.setItem("moneyTrackerProSingle",JSON.stringify(state));render()}
+function totals(){const income=+state.incomeFortnight + +state.incomeEndMonth;const saving=income*(+state.savingPercent/100);const spent=state.expenses.reduce((s,e)=>s+ +e.amount,0);return{income,saving,spent,available:income-saving-spent}}
+function saveConfig(){state.incomeFortnight=+$("incomeFortnight").value||0;state.incomeEndMonth=+$("incomeEndMonth").value||0;state.savingPercent=+$("savingPercent").value||3;save()}
+function addExpense(){const name=$("expenseName").value.trim(), amount=+$("expenseAmount").value||0;if(!name||amount<=0){alert("Completa nombre y monto bro 😅");return}state.expenses.unshift({id:Date.now(),name,amount,category:$("expenseCategory").value,period:$("expensePeriod").value,date:new Date().toLocaleDateString("es-PE")});$("expenseName").value="";$("expenseAmount").value="";save()}
+function deleteExpense(id){state.expenses=state.expenses.filter(e=>e.id!==id);save()}
+function editExpense(id){const e=state.expenses.find(x=>x.id===id);if(!e)return;const n=prompt("Nuevo nombre:",e.name);const m=+prompt("Nuevo monto:",e.amount);if(!n||m<=0)return;e.name=n.trim();e.amount=m;save()}
+function saveGoal(){state.goalName=$("goalName").value.trim();state.goalAmount=+$("goalAmount").value||0;save()}
+function resetData(){if(confirm("¿Borrar todo?")){state={...fresh,expenses:[]};localStorage.removeItem("moneyTrackerProSingle");render()}}
+function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="moneytracker-respaldo.json";a.click();URL.revokeObjectURL(url)}
+function renderChart(){const map={};state.expenses.forEach(e=>map[e.category]=(map[e.category]||0)+ +e.amount);const max=Math.max(...Object.values(map),1);$("categoryChart").innerHTML=Object.entries(map).map(([c,v])=>`<div class="chart-row"><span>${c}</span><div class="chart-track"><div class="chart-fill" style="width:${v/max*100}%"></div></div><b>${money(v)}</b></div>`).join("")||"<p>Aún no hay gastos registrados.</p>"}
+function renderExpenses(){const q=($("searchExpense").value||"").toLowerCase();const list=state.expenses.filter(e=>(e.name+e.category+e.period).toLowerCase().includes(q));$("expenseList").innerHTML=list.map(e=>`<div class="expense"><div><b>${e.category} ${e.name}</b><br><small>${e.period} · ${e.date}</small></div><div><div class="amount">-${money(e.amount)}</div><div class="row-actions"><button class="edit" onclick="editExpense(${e.id})">Editar</button><button class="delete" onclick="deleteExpense(${e.id})">Eliminar</button></div></div></div>`).join("")||"<p>No hay gastos todavía.</p>"}
+function render(){document.body.classList.toggle("dark",state.dark);$("themeBtn").textContent=state.dark?"☀️":"🌙";$("incomeFortnight").value=state.incomeFortnight;$("incomeEndMonth").value=state.incomeEndMonth;$("savingPercent").value=state.savingPercent;$("goalName").value=state.goalName;$("goalAmount").value=state.goalAmount||"";const t=totals();$("incomeTotal").textContent=money(t.income);$("savingTotal").textContent=money(t.saving);$("spentTotal").textContent=money(t.spent);$("available").textContent=money(t.available);const usable=Math.max(t.income-t.saving,1);const used=Math.min(t.spent/usable*100,100);$("budgetBar").style.width=used+"%";$("budgetText").textContent=`${used.toFixed(0)}% del dinero disponible usado`;const gp=state.goalAmount>0?Math.min(t.saving/state.goalAmount*100,100):0;$("goalTitle").textContent=state.goalName?`${state.goalName} · ${money(state.goalAmount)}`:"Sin meta todavía";$("goalProgressText").textContent=gp.toFixed(0)+"%";$("goalBar").style.width=gp+"%";renderChart();renderExpenses()}
+$("saveConfig").onclick=saveConfig;$("addExpense").onclick=addExpense;$("saveGoal").onclick=saveGoal;$("themeBtn").onclick=()=>{state.dark=!state.dark;save()};$("resetData").onclick=resetData;$("exportData").onclick=exportData;$("searchExpense").oninput=renderExpenses;render();
+</script>
+</body>
+</html>
