@@ -1,0 +1,154 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CapyPOS Pro 2.0</title>
+<style>
+:root{
+  --bg:#eef6f4;--card:#fff;--text:#0f172a;--muted:#64748b;--primary:#0f766e;--blue:#2563eb;--red:#dc2626;--yellow:#f59e0b;--green:#16a34a;--shadow:0 18px 45px rgba(15,23,42,.14)
+}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Segoe UI,Arial,sans-serif}
+body{min-height:100vh;background:linear-gradient(135deg,#ecfdf5,#e0f2fe);color:var(--text)}
+.hidden{display:none!important}
+button,.btn{border:0;border-radius:15px;padding:12px 15px;background:var(--primary);color:#fff;font-weight:900;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+button:hover,.btn:hover{filter:brightness(.96)}
+input,select{width:100%;padding:13px;border-radius:14px;border:1px solid #cbd5e1;font-size:15px;background:#fff}
+label{display:block;margin:12px 0 6px;font-weight:800}
+.login-screen{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#042f2e,#0f766e,#2563eb)}
+.login-card{width:min(460px,100%);background:#fff;padding:34px;border-radius:32px;box-shadow:0 30px 80px rgba(0,0,0,.32)}
+.login-logo{text-align:center;font-size:64px}.login-card h1{text-align:center;font-size:42px}.login-card p,.login-card small{text-align:center;color:var(--muted);margin:10px 0 18px;display:block;line-height:1.5}.login-card button{width:100%;margin-top:16px}.link-btn{background:transparent!important;color:var(--blue)!important;padding:8px!important}
+.app{display:grid;grid-template-columns:285px 1fr;min-height:100vh}
+.sidebar{background:#052e2b;color:white;padding:22px;display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;gap:13px;align-items:center;margin-bottom:18px}.brand span{font-size:46px}.brand small{color:#99f6e4}.nav,.logout{width:100%;text-align:left;background:transparent;color:#d1fae5}.nav.active,.nav:hover{background:rgba(255,255,255,.14)}
+.logout{margin-top:auto;background:var(--red);text-align:center}
+.content{padding:24px;overflow:auto}.topbar{margin-bottom:18px}.topbar p{color:var(--muted)}
+.page{display:none}.page.active{display:block}.hero{background:linear-gradient(135deg,#0f766e,#2563eb);color:white;border-radius:30px;padding:24px;box-shadow:var(--shadow);margin-bottom:18px}
+.card{background:var(--card);border-radius:26px;padding:21px;box-shadow:var(--shadow);margin-bottom:18px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px}.stat span{display:block;color:var(--muted);font-weight:700;margin-bottom:8px}.stat b{font-size:25px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px;flex-wrap:wrap}.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.item-card{background:#fff;border-radius:22px;padding:18px;box-shadow:var(--shadow);border-left:7px solid var(--primary)}.item-card.busy{border-left-color:var(--red)}.item-card.wait{border-left-color:var(--yellow)}
+.price{font-size:27px;font-weight:900;color:var(--primary);margin:10px 0}.line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #e2e8f0}.total{display:flex;justify-content:space-between;align-items:center;background:rgba(20,184,166,.13);padding:16px;border-radius:18px;margin-top:14px}.total b{font-size:27px;color:var(--primary)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.edit{background:var(--yellow)}.danger{background:var(--red)}.blue{background:var(--blue)}.note{font-size:13px;color:var(--muted);line-height:1.5;margin-top:12px}.empty{color:var(--muted);padding:12px 0}
+.badge{padding:6px 10px;border-radius:999px;background:#dcfce7;color:#166534;font-size:12px;font-weight:900}.badge.off{background:#fee2e2;color:#991b1b}
+@media(max-width:900px){.app{grid-template-columns:1fr}.stats,.grid{grid-template-columns:1fr}.content{padding:14px}.sidebar{position:static}}
+</style>
+</head>
+<body>
+<section id="loginScreen" class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">🦫</div>
+    <h1>CapyPOS Pro</h1>
+    <p>Sistema POS para restaurantes</p>
+    <label>Correo</label><input id="loginEmail" type="email" placeholder="admin@gmail.com">
+    <label>Contraseña</label><input id="loginPassword" type="password" placeholder="********">
+    <button id="loginBtn">Iniciar sesión</button>
+    <button id="forgotBtn" class="link-btn">Olvidé mi contraseña</button>
+    <small>Firebase conectado · Datos en la nube</small>
+  </div>
+</section>
+
+<main id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand"><span>🦫</span><div><h2>CapyPOS</h2><small id="roleText">Online</small></div></div>
+    <button class="nav super-only active" data-page="adminPage">👑 Admin</button>
+    <button class="nav" data-page="dashboardPage">🏠 Inicio</button>
+    <button class="nav" data-page="tablesPage">🪑 Mesas</button>
+    <button class="nav" data-page="productsPage">🍔 Productos</button>
+    <button class="nav" data-page="salesPage">💰 Ventas</button>
+    <button class="nav" data-page="kitchenPage">👨‍🍳 Cocina</button>
+    <button class="nav" data-page="reportsPage">📊 Reportes</button>
+    <button class="nav" data-page="settingsPage">⚙️ Configuración</button>
+    <button id="logoutBtn" class="logout">Cerrar sesión</button>
+  </aside>
+  <section class="content">
+    <header class="topbar"><h1 id="pageTitle">Panel</h1><p id="restaurantText">CapyPOS Pro 2.0</p></header>
+
+    <section id="adminPage" class="page active">
+      <div class="hero"><h1>👑 Panel SuperAdmin</h1><p>Crea restaurantes y controla licencias.</p></div>
+      <div class="stats">
+        <div class="card stat"><span>Restaurantes</span><b id="adminRestaurants">0</b></div>
+        <div class="card stat"><span>Activos</span><b id="adminActive">0</b></div>
+        <div class="card stat"><span>Ventas totales</span><b id="adminSales">S/ 0.00</b></div>
+        <div class="card stat"><span>Estado</span><b>Online</b></div>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <h2>Crear restaurante</h2>
+          <label>Nombre comercial</label><input id="newRestaurantName" placeholder="Pollería Don Pepe">
+          <label>Correo de acceso</label><input id="newRestaurantEmail" type="email" placeholder="restaurante@gmail.com">
+          <label>Contraseña inicial</label><input id="newRestaurantPassword" type="password" placeholder="mínimo 6 caracteres">
+          <label>Plan</label><select id="newRestaurantPlan"><option>Básico</option><option>Premium</option><option>Pro</option></select>
+          <label>Fecha de vencimiento</label><input id="newRestaurantExpires" type="date">
+          <button id="createRestaurantBtn">Crear restaurante</button>
+          <p class="note">Crea usuario en Firebase Auth y restaurante en Firestore.</p>
+        </article>
+        <article class="card"><h2>Restaurantes registrados</h2><div id="restaurantsList"></div></article>
+      </div>
+    </section>
+
+    <section id="dashboardPage" class="page">
+      <div class="hero"><h1 id="dashRestaurant">Dashboard</h1><p>Resumen del restaurante.</p></div>
+      <div class="stats">
+        <div class="card stat"><span>Ventas</span><b id="dashSales">S/ 0.00</b></div>
+        <div class="card stat"><span>Pedidos</span><b id="dashOrders">0</b></div>
+        <div class="card stat"><span>Productos</span><b id="dashProducts">0</b></div>
+        <div class="card stat"><span>Mesas</span><b id="dashTables">0</b></div>
+      </div>
+      <div class="grid">
+        <article class="card"><h2>Últimas ventas</h2><div id="recentSales"></div></article>
+        <article class="card"><h2>SUNAT</h2><p class="note">CapyPOS no guarda Clave SOL.</p><div class="actions"><a class="btn blue" target="_blank" href="https://ww1.sunat.gob.pe/ol-ti-itfesimpopciones/FESimpSunat.htm">Emitir factura</a><a class="btn" target="_blank" href="https://ww1.sunat.gob.pe/ol-ti-itfesimpopciones/FESimpSunat.htm">Emitir boleta</a></div></article>
+      </div>
+    </section>
+    <section id="tablesPage" class="page"><div class="section-head"><h2>Mesas</h2><button id="addTableBtn">+ Mesa</button></div><div id="tablesGrid" class="cards-grid"></div></section>
+    <section id="productsPage" class="page"><div class="section-head"><h2>Productos</h2><button id="addProductBtn">+ Producto</button></div><div id="productsGrid" class="cards-grid"></div></section>
+    <section id="salesPage" class="page"><div class="grid"><article class="card"><h2>Nueva venta</h2><label>Mesa</label><select id="saleTable"></select><label>Producto</label><select id="saleProduct"></select><label>Cantidad</label><input id="saleQty" type="number" value="1" min="1"><button id="addCartBtn">Agregar producto</button><div id="cartBox"></div><label>Método de pago</label><select id="paymentMethod"><option>Efectivo</option><option>Yape</option><option>Plin</option><option>Tarjeta</option></select><button id="chargeBtn">Cobrar venta</button></article><article class="card"><h2>Ventas registradas</h2><div id="salesList"></div></article></div></section>
+    <section id="kitchenPage" class="page"><div class="section-head"><h2>Cocina</h2><p class="note">Pedidos recientes.</p></div><div id="kitchenList" class="cards-grid"></div></section>
+    <section id="reportsPage" class="page"><article class="card"><h2>Reportes</h2><div id="reportsBox"></div></article></section>
+    <section id="settingsPage" class="page"><article class="card"><h2>Configuración</h2><label>Nombre del restaurante</label><input id="settingsRestaurantName"><button id="saveSettingsBtn">Guardar</button></article></section>
+  </section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+const firebaseConfig={apiKey:"AIzaSyBoGNYFqDaptzs6Z82YVN8zexx4B-7K53iE",authDomain:"capypos-ba971.firebaseapp.com",projectId:"capypos-ba971",storageBucket:"capypos-ba971.firebasestorage.app",messagingSenderId:"751019550933",appId:"1:751019550933:web:edc4e6aac1ed1c4eada5c",measurementId:"G-81FB85WRK"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+const $=id=>document.getElementById(id);const money=n=>"S/ "+Number(n||0).toLocaleString("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2});
+let profile=null,restaurantId=null,restaurant=null,restaurants=[],products=[],tables=[],sales=[],cart=[],unsubs=[];
+function clearUnsubs(){unsubs.forEach(fn=>fn&&fn());unsubs=[]}
+function openPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.querySelectorAll(".nav").forEach(n=>n.classList.remove("active"));$(id).classList.add("active");const b=document.querySelector(`[data-page="${id}"]`);if(b){b.classList.add("active");$("pageTitle").textContent=b.textContent.replace(/[👑🏠🪑🍔💰👨‍🍳📊⚙️]/g,"").trim()}}
+function showLogin(){$("loginScreen").classList.remove("hidden");$("app").classList.add("hidden")}
+function showApp(){$("loginScreen").classList.add("hidden");$("app").classList.remove("hidden")}
+async function login(){try{await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPassword").value.trim())}catch(e){alert("No se pudo iniciar sesión: "+e.message)}}
+async function forgot(){const email=$("loginEmail").value.trim();if(!email)return alert("Escribe tu correo primero.");await sendPasswordResetEmail(auth,email);alert("Te enviamos un correo para restablecer la contraseña.")}
+async function logout(){clearUnsubs();await signOut(auth)}
+async function loadProfile(uid){const s=await getDoc(doc(db,"users",uid));if(!s.exists())throw new Error("Falta crear el perfil del usuario en Firestore.");return s.data()}
+async function createRestaurant(){const name=$("newRestaurantName").value.trim(),email=$("newRestaurantEmail").value.trim(),password=$("newRestaurantPassword").value.trim(),plan=$("newRestaurantPlan").value,expiresAt=$("newRestaurantExpires").value;if(!name||!email||!password)return alert("Completa nombre, correo y contraseña.");try{const created=await createUserWithEmailAndPassword(auth,email,password);const rest=await addDoc(collection(db,"restaurants"),{name,email,plan,expiresAt,active:true,createdAt:serverTimestamp()});await setDoc(doc(db,"users",created.user.uid),{email,name,role:"restaurant",restaurantId:rest.id});await addDoc(collection(db,"restaurants",rest.id,"tables"),{name:"Mesa 1",status:"Libre"});await addDoc(collection(db,"restaurants",rest.id,"tables"),{name:"Mesa 2",status:"Libre"});await addDoc(collection(db,"restaurants",rest.id,"products"),{name:"Menú del día",price:12});await addDoc(collection(db,"restaurants",rest.id,"products"),{name:"Gaseosa",price:5});alert("Restaurante creado. Vuelve a iniciar sesión como SuperAdmin.");await signOut(auth)}catch(e){alert("Error creando restaurante: "+e.message)}}
+function listenAdmin(){clearUnsubs();unsubs.push(onSnapshot(collection(db,"restaurants"),s=>{restaurants=s.docs.map(d=>({id:d.id,...d.data()}));renderAdmin()}))}
+async function toggleRestaurant(id,active){await updateDoc(doc(db,"restaurants",id),{active:!active})}
+async function deleteRestaurant(id){if(confirm("¿Eliminar restaurante?"))await deleteDoc(doc(db,"restaurants",id))}
+async function loadRestaurant(id){restaurantId=id;const s=await getDoc(doc(db,"restaurants",id));restaurant={id:s.id,...s.data()};clearUnsubs();unsubs.push(onSnapshot(collection(db,"restaurants",id,"products"),s=>{products=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()}));unsubs.push(onSnapshot(collection(db,"restaurants",id,"tables"),s=>{tables=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()}));unsubs.push(onSnapshot(collection(db,"restaurants",id,"sales"),s=>{sales=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()}))}
+async function addTable(){const name=prompt("Nombre de mesa:","Mesa "+(tables.length+1));if(name)await addDoc(collection(db,"restaurants",restaurantId,"tables"),{name,status:"Libre"})}
+async function toggleTable(id,status){const next=status==="Libre"?"Ocupada":status==="Ocupada"?"Esperando cuenta":"Libre";await updateDoc(doc(db,"restaurants",restaurantId,"tables",id),{status:next})}
+async function deleteTable(id){if(confirm("¿Eliminar mesa?"))await deleteDoc(doc(db,"restaurants",restaurantId,"tables",id))}
+async function addProduct(){const name=prompt("Producto:"),price=Number(prompt("Precio:"));if(name&&price>0)await addDoc(collection(db,"restaurants",restaurantId,"products"),{name,price})}
+async function editProduct(id){const p=products.find(x=>x.id===id),name=prompt("Nombre:",p.name),price=Number(prompt("Precio:",p.price));if(name&&price>0)await updateDoc(doc(db,"restaurants",restaurantId,"products",id),{name,price})}
+async function deleteProduct(id){if(confirm("¿Eliminar producto?"))await deleteDoc(doc(db,"restaurants",restaurantId,"products",id))}
+function addCart(){const p=products.find(x=>x.id===$("saleProduct").value),qty=Number($("saleQty").value||1);if(p&&qty>0){cart.push({id:Date.now(),productId:p.id,name:p.name,price:Number(p.price),qty});renderCart()}}
+function editCartItem(id){const i=cart.find(x=>x.id===id),qty=Number(prompt("Nueva cantidad:",i.qty));if(qty>0){i.qty=qty;renderCart()}}
+function deleteCartItem(id){cart=cart.filter(i=>i.id!==id);renderCart()}
+async function charge(){if(!cart.length)return alert("Agrega productos.");const t=tables.find(x=>x.id===$("saleTable").value),total=cart.reduce((s,i)=>s+i.price*i.qty,0);await addDoc(collection(db,"restaurants",restaurantId,"sales"),{date:new Date().toLocaleString("es-PE"),method:$("paymentMethod").value,tableName:t?t.name:"Sin mesa",status:"Preparando",items:cart,total});if(t)await updateDoc(doc(db,"restaurants",restaurantId,"tables",t.id),{status:"Ocupada"});cart=[];renderCart();alert("Venta registrada.")}
+async function updateSaleStatus(id,status){await updateDoc(doc(db,"restaurants",restaurantId,"sales",id),{status})}
+async function editSale(id){const s=sales.find(x=>x.id===id),total=Number(prompt("Nuevo total:",s.total));if(total>0)await updateDoc(doc(db,"restaurants",restaurantId,"sales",id),{total})}
+async function deleteSale(id){if(confirm("¿Eliminar venta?"))await deleteDoc(doc(db,"restaurants",restaurantId,"sales",id))}
+async function saveSettings(){const name=$("settingsRestaurantName").value.trim();if(!name)return;await updateDoc(doc(db,"restaurants",restaurantId),{name});restaurant.name=name;renderAll();alert("Guardado.")}
+function renderAdmin(){const total=restaurants.reduce((s,r)=>s+Number(r.totalSales||0),0);$("adminRestaurants").textContent=restaurants.length;$("adminActive").textContent=restaurants.filter(r=>r.active).length;$("adminSales").textContent=money(total);$("restaurantsList").innerHTML=restaurants.map(r=>`<div class="line"><span><b>${r.name}</b><br><small>${r.email||""} · ${r.plan||"Sin plan"} · vence ${r.expiresAt||"-"}</small></span><span class="badge ${r.active?"":"off"}">${r.active?"Activo":"Off"}</span><div class="actions"><button class="blue" onclick="window.toggleRestaurant('${r.id}',${!!r.active})">${r.active?"Desactivar":"Activar"}</button><button class="danger" onclick="window.deleteRestaurant('${r.id}')">Eliminar</button></div></div>`).join("")||"<p class='empty'>No hay restaurantes.</p>"}
+function renderAll(){if(!restaurant)return;$("restaurantText").textContent=restaurant.name;$("dashRestaurant").textContent=restaurant.name;$("settingsRestaurantName").value=restaurant.name||"";const total=sales.reduce((s,v)=>s+Number(v.total||0),0);$("dashSales").textContent=money(total);$("dashOrders").textContent=sales.length;$("dashProducts").textContent=products.length;$("dashTables").textContent=tables.length;$("recentSales").innerHTML=sales.slice(0,5).map(s=>`<div class="line"><span>${s.date} · ${s.tableName||""}</span><b>${money(s.total)}</b></div>`).join("")||"<p class='empty'>Aún no hay ventas.</p>";$("tablesGrid").innerHTML=tables.map(t=>`<div class="item-card ${t.status==="Ocupada"?"busy":t.status==="Esperando cuenta"?"wait":""}"><h3>${t.name}</h3><p>${t.status}</p><div class="actions"><button onclick="window.toggleTable('${t.id}','${t.status}')">Cambiar estado</button><button class="danger" onclick="window.deleteTable('${t.id}')">Eliminar</button></div></div>`).join("")||"<p class='empty'>No hay mesas.</p>";$("productsGrid").innerHTML=products.map(p=>`<div class="item-card"><h3>${p.name}</h3><div class="price">${money(p.price)}</div><div class="actions"><button class="edit" onclick="window.editProduct('${p.id}')">Editar</button><button class="danger" onclick="window.deleteProduct('${p.id}')">Eliminar</button></div></div>`).join("")||"<p class='empty'>No hay productos.</p>";$("saleProduct").innerHTML=products.map(p=>`<option value="${p.id}">${p.name} - ${money(p.price)}</option>`).join("");$("saleTable").innerHTML=tables.map(t=>`<option value="${t.id}">${t.name} - ${t.status}</option>`).join("");$("salesList").innerHTML=sales.map(s=>`<div class="card"><b>${s.date} · ${s.tableName||"Sin mesa"} · ${s.method||""}</b>${(s.items||[]).map(i=>`<div class="line"><span>${i.qty} x ${i.name}</span><b>${money(i.price*i.qty)}</b></div>`).join("")}<div class="total"><span>Total</span><b>${money(s.total)}</b></div><div class="actions"><button class="edit" onclick="window.editSale('${s.id}')">Editar total</button><button class="danger" onclick="window.deleteSale('${s.id}')">Eliminar</button><a class="btn blue" target="_blank" href="https://ww1.sunat.gob.pe/ol-ti-itfesimpopciones/FESimpSunat.htm">Emitir factura</a><a class="btn" target="_blank" href="https://ww1.sunat.gob.pe/ol-ti-itfesimpopciones/FESimpSunat.htm">Emitir boleta</a></div></div>`).join("")||"<p class='empty'>No hay ventas.</p>";$("kitchenList").innerHTML=sales.slice(0,20).map(s=>`<div class="item-card"><h3>${s.tableName||"Pedido"}</h3><p><b>Estado:</b> ${s.status||"Preparando"}</p>${(s.items||[]).map(i=>`<div class="line"><span>${i.qty} x ${i.name}</span></div>`).join("")}<div class="actions"><button class="edit" onclick="window.updateSaleStatus('${s.id}','Preparando')">Preparando</button><button onclick="window.updateSaleStatus('${s.id}','Listo')">Listo</button><button class="blue" onclick="window.updateSaleStatus('${s.id}','Entregado')">Entregado</button></div></div>`).join("")||"<p class='empty'>No hay pedidos.</p>";$("reportsBox").innerHTML=`<div class="line"><span>Total vendido</span><b>${money(total)}</b></div><div class="line"><span>Ventas cobradas</span><b>${sales.length}</b></div><div class="line"><span>Productos</span><b>${products.length}</b></div><div class="line"><span>Mesas</span><b>${tables.length}</b></div>`}
+function renderCart(){const total=cart.reduce((s,i)=>s+i.price*i.qty,0);$("cartBox").innerHTML=cart.map(i=>`<div class="line"><span>${i.qty} x ${i.name}</span><b>${money(i.price*i.qty)}</b><div class="actions"><button class="edit" onclick="window.editCartItem(${i.id})">Editar</button><button class="danger" onclick="window.deleteCartItem(${i.id})">Quitar</button></div></div>`).join("")+(cart.length?`<div class="total"><span>Total</span><b>${money(total)}</b></div>`:"")}
+onAuthStateChanged(auth,async user=>{if(!user){profile=null;restaurant=null;restaurantId=null;clearUnsubs();showLogin();return}try{profile=await loadProfile(user.uid);$("roleText").textContent=profile.role==="superadmin"?"SuperAdmin":"Restaurante";showApp();if(profile.role==="superadmin"){document.querySelectorAll(".super-only").forEach(el=>el.style.display="block");openPage("adminPage");listenAdmin();return}document.querySelectorAll(".super-only").forEach(el=>el.style.display="none");await loadRestaurant(profile.restaurantId);openPage("dashboardPage")}catch(e){alert("Error cargando usuario: "+e.message);await signOut(auth)}})
+$("loginBtn").onclick=login;$("forgotBtn").onclick=forgot;$("logoutBtn").onclick=logout;$("createRestaurantBtn").onclick=createRestaurant;$("addTableBtn").onclick=addTable;$("addProductBtn").onclick=addProduct;$("addCartBtn").onclick=addCart;$("chargeBtn").onclick=charge;$("saveSettingsBtn").onclick=saveSettings;document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>openPage(b.dataset.page));Object.assign(window,{toggleRestaurant,deleteRestaurant,toggleTable,deleteTable,editProduct,deleteProduct,editCartItem,deleteCartItem,editSale,deleteSale,updateSaleStatus});
+</script>
+</body>
+</html>
